@@ -1,0 +1,60 @@
+﻿@{
+    ViewBag.Title = "Current Order";
+}
+
+<h3>@ViewBag.Message</h3>
+
+<div class="row">
+    <input id="submitOrderButton" type="button" class="btn btn-primary btn-lg invisible" value="Submit Order"
+           onclick="submitOrder()" style="margin-top:5px; margin-bottom:20px;"/>
+    <table id="productsTable" class="table"></table>
+</div>
+
+@section scripts{
+    <script>
+        function submitOrder() {
+            $.ajax({
+                url: "/api/customers/submitorder",
+                success: function (data) {
+                    $("#submitOrderButton").addClass("invisible");
+                    $("#productsTable").addClass("invisible");
+                    $.notify("The order has been submitted.", "success");
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#submitOrderButton").notify("An error has occurred. Please try again.", "error");
+                }
+            });
+        };
+        $.ajax({
+            url: '/api/customers/currentorder',
+            success: function (data) {
+                var list = $("#productsTable");
+                list.append("<tr><th>Product</th><th>Description</th><th>Category</th><th>Price</th>" +
+                    "<th>Quantity</th><th>Total Price</th></tr>");
+                if (data && data.Products.length > 0) {
+                    $("#submitOrderButton").removeClass("invisible");
+                    var prod = data.Products;
+                    var orderTotal = 0;
+                    for (var c = 0; c < prod.length; c++) {
+                        orderTotal += parseFloat(prod[c].TotalPrice);
+                        var categories = "";
+                        for (var i = 0; i < prod[c].Categories.length; i++) {
+                            categories += prod[c].Categories[i] + "<br />";
+                        }
+                        list.append("<tr><td>" + prod[c].Name +
+                            "</td><td>" + prod[c].Description +
+                            "</td><td>" + categories +
+                            "</td><td>$" + parseFloat(prod[c].UnitPrice).toFixed(2) +
+                            "</td><td>" + prod[c].Quantity +
+                            "</td><td>$" + parseFloat(prod[c].TotalPrice).toFixed(2) +
+                            "</td ></tr> ");
+                    }
+                    list.append("<tr><td><b>Order Total:<b></td>" +
+                        "<td></td><td></td><td></td><td></td><td><b>$" +
+                        parseFloat(orderTotal).toFixed(2) +
+                        "</b></td></tr>");
+                }
+            }
+        });
+    </script>
+}

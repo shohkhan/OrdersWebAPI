@@ -1,0 +1,51 @@
+﻿
+@{
+    ViewBag.Title = "Previous Orders";
+}
+
+<h3>@ViewBag.Message</h3>
+
+
+<div id="orders">
+</div>
+
+
+@section scripts{
+    <script>
+        function getDate(sd) {
+            var d = new Date(Date.parse(sd));
+            return (d.getMonth() + 1) + "/" + (d.getDate() + 1) + "/" + (d.getFullYear());
+        }
+        $.ajax({
+            url: '/api/customers/orders',
+            success: function (orders) {
+                if (orders && orders.length > 0) {
+                    var ord = $("#orders");
+                    for (var i = 0; i < orders.length; i++) {
+                        var order = orders[i];
+                        var date = getDate(order.SubmissionDate);
+                        var box = "<div style=\"background-color:#eeeeee; padding: 20px; margin: 20px;\">";
+                        box += "<table class=\"table\">";
+                        box += "<tr><td class='col-sm-5'>Order Status:</td><td><b>" + order.OrderStatus + "</b></td></tr>";
+                        box += "<tr><td>Order Placed:</td><td><b>" + date + "</b></td></tr>";
+                        box += "<tr><td style=\"vertical- align:top\">Products in order:</td><td>";
+
+                        var prods = order.Products;
+                        var total = 0;
+                        for (var j = 0; j < prods.length; j++) {
+                            total += parseFloat(prods[j].TotalPrice);
+                            box += "<p>" + prods[j].Name;
+                            if (prods[j].Quantity > 1) box += " (Quantity: " + prods[j].Quantity + ")";
+                            box += "</p>";
+                        }
+                        box += "</td></tr>";
+                        box += "<tr><td>Order Total:</td><td><b>$" + parseFloat(total).toFixed(2) + "</b></td></tr>";
+                        box += "</table>";
+                        box += "</div>";
+                        ord.append(box);
+                    }
+                }
+            }
+        });
+    </script>
+}

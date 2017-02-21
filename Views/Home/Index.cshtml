@@ -1,0 +1,54 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <p class="lead">Welcome to Orders.</p>
+    <p> Here, you can add products to your order, submit your order, and see the status of your previous order(s).</p>
+</div>
+
+<div class="row">
+    <table id="productsTable" class="table"></table>
+</div>
+
+@section scripts{
+    <script>
+        function addToCart(id) {
+            if (parseInt(id)) {
+                $.ajax({
+                    url: "api/customers/addtocart/" + id,
+                    success: function (data) {
+                        $.notify("The product has been added to the order.", "success",
+                            { position: "left middle" });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        $.notify("An error has occurred. Please try again.", "error");
+                    }
+                });
+            }
+        };
+        $.ajax({
+            url: '/api/products',
+            success: function (prod) {
+                var list = $("#productsTable");
+                list.append("<tr><th>Product</th><th>Description</th><th>Category</th><th>Price</th><th></th></tr>");
+                if (prod && prod.length > 0) {
+                    for (var c = 0; c < prod.length; c++) {
+                        var categories = "";
+                        for (var i = 0; i < prod[c].Categories.length; i++) {
+                            categories += prod[c].Categories[i] + "<br />";
+                        }
+                        list.append("<tr><td>" + prod[c].Name +
+                            "</td><td>" + prod[c].Description +
+                            "</td><td>" + categories +
+                            "</td><td>$" + parseFloat(prod[c].UnitPrice).toFixed(2) +
+                            "</td><td>" +
+                            "<input type='button' class='btn btn-primary' value='Add to Cart' " +
+                            " onclick= 'addToCart(" + prod[c].ProductId + ")'/>" +
+                            "</td ></tr > ");
+                    }
+                }
+            }
+        });
+    </script>
+}
