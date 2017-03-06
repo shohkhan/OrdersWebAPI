@@ -42,25 +42,6 @@ namespace Orders.Controllers
         {
             var ind = Convert.ToInt32(ConfigurationManager.AppSettings.Get("orderNotSubmitted"));
             var date2 = date.AddDays(range + 1);
-            //var prods = db.ShopOrders
-            //        .Where(o => o.OrderStatus.OrderStatusId != ind &&
-            //        o.SubmissionDate >= date && 
-            //        o.SubmissionDate < date2)
-            //        .Select(x => new OrderDto
-            //        {
-            //            OrderStatus = x.OrderStatus.Name,
-            //            SubmissionDate = x.SubmissionDate,
-            //            Products = x.Products
-            //                .Select(p => new ProductDto
-            //                {
-            //                    Name = p.Product.Name,
-            //                    UnitPrice = p.Product.Price,
-            //                    TotalPrice = p.Product.Price * p.Quantity,
-            //                    Quantity = p.Quantity,
-            //                    Categories = p.Product.Categories.Select(c => c.Category.Name).ToList(),
-            //                    Description = p.Product.Description
-            //                }).ToList(),
-            //        }).ToList();
             var prods = (from so in db.ShopOrders
                         join po in db.ProductOrders on so.ShopOrderId equals po.ShopOrderId
                         join pd in db.Products on po.ProductId equals pd.ProductId
